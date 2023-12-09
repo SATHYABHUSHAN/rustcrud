@@ -1,0 +1,61 @@
+use std::collections::HashMap;
+use std::error::Error;
+
+#[derive(Debug)]
+struct Database {
+    store: HashMap<String, String>,
+}
+
+impl Database {
+    fn new() -> Database {
+        Database {
+            store: HashMap::new(),
+        }
+    }
+
+    fn create(&mut self, key: String, value: String) -> Result<(), Box<dyn Error>> {
+        if self.store.contains_key(&key) {
+            return Err("Error: Key already exists".into());
+        }
+        self.store.insert(key, value);
+        Ok(())
+    }
+
+    fn read(&self, key: &str) -> Result<&String, Box<dyn Error>> {
+        match self.store.get(key) {
+            Some(value) => Ok(value),
+            None => return Err("Error: Key not found".into()),
+        }
+    }
+
+    fn update(&mut self, key: String, value: String) -> Result<(), Box<dyn Error>> {
+        if !self.store.contains_key(&key) {
+            return Err("Error: Key not found".into());
+        }
+        self.store.insert(key, value);
+        Ok(())
+    }
+
+    fn delete(&mut self, key: &str) -> Result<(), Box<dyn Error>> {
+        if !self.store.contains_key(key) {
+            return Err("Error: Key not found".into());
+        }
+        self.store.remove(key);
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut db = Database::new();
+    db.create("name".to_string(), "sathya".to_string()).unwrap();
+    db.create("age".to_string(), "21".to_string()).unwrap();
+
+    println!("{}", db.read("name").unwrap());
+    println!("{}", db.read("age").unwrap());
+
+    db.update("name".to_string(), "sathyabhushan".to_string()).unwrap();
+    println!("{}", db.read("name").unwrap());
+
+    db.delete("age").unwrap();
+    assert!(db.read("age").is_err());
+}
